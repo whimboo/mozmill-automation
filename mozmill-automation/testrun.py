@@ -191,14 +191,14 @@ class TestRun(object):
         """ Preparation which has to be done before starting a test. """
 
         # instantiate handlers
-        handlers = []
         logging_handler = mozmill.logger.LoggerListener(log_file=self.options.logfile,
                                                         console_level='INFO',
                                                         file_level='DEBUG',
                                                         debug=self.debug)
-        handlers.append(logging_handler)
+        handlers = [logging_handler]
         if self.options.report_url:
-            handlers.append(reports.DashboardReport(self.options.report_url, self))
+            self.report = reports.DashboardReport(self.options.report_url, self)
+            handlers.append(self.report)
 
         # instantiate MozMill
         profile_args = dict(addons=self.addon_list)
@@ -250,19 +250,17 @@ class TestRun(object):
             manifests=[os.path.join(self.repository_path, self.manifest_path)],
             strict=False)
 
-        for test in manifest.tests:
-            try:
-                self._mozmill.run(test)
-            except SystemExit:
-                # Mozmill itself calls sys.exit(1) but we do not want to exit
-                pass
+        try:
+            self._mozmill.run(*manifest.tests)
+        except SystemExit:
+            # Mozmill itself calls sys.exit(1) but we do not want to exit
+            pass
 
         # Whenever a test fails it has to be marked, so we quit with the correct exit code
         self.last_failed_tests = self.last_failed_tests or self._mozmill.results.fails
 
         self._generate_custom_report()
         self.testrun_index += 1
-        self._mozmill.results.finish(self._mozmill.handlers)
 
     def run(self):
         """ Run tests for all specified builds. """
@@ -284,6 +282,7 @@ class TestRun(object):
                     self.prepare_binary(binary)
                     self.prepare_repository()
                     self.run_tests()
+                    self._mozmill.results.finish(self._mozmill.handlers)
                 except Exception, e:
                     print str(e)
                     self.last_exception = e

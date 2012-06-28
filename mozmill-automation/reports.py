@@ -7,12 +7,12 @@ from mozmill.report import Report
 class DashboardReport(Report):
 
     def __init__(self, report, testrun):
-        super(DashboardReport, self).__init__(report)
+        Report.__init__(self, report)
         self.testrun = testrun
 
     def get_report(self, results):
         """ Customize the report data. """
-        report = super(DashboardReport, self).get_report(results)
+        report = Report.get_report(self, results)
 
         report['report_type'] = self.testrun.report_type
         report['report_version'] = self.testrun.report_version
@@ -23,8 +23,6 @@ class DashboardReport(Report):
             report['tags'] = self.testrun.options.tags
 
         # Optional information received by Python callbacks
-        if self.testrun.installed_addons:
-            report['addons'] = self.testrun.installed_addons
         if self.testrun.graphics:
             report['system_info']['graphics'] = self.testrun.graphics
         return report
