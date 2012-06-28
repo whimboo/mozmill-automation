@@ -191,11 +191,11 @@ class TestRun(object):
         """ Preparation which has to be done before starting a test. """
 
         # instantiate handlers
-        logging_handler = mozmill.logger.LoggerListener(log_file=self.options.logfile,
-                                                        console_level='INFO',
-                                                        file_level='DEBUG',
-                                                        debug=self.debug)
-        handlers = [logging_handler]
+        logger = mozmill.logger.LoggerListener(log_file=self.options.logfile,
+                                               console_level=self.debug and 'DEBUG' or 'INFO',
+                                               file_level=self.debug and 'DEBUG' or 'INFO',
+                                               debug=self.debug)
+        handlers = [logger]
         if self.options.report_url:
             self.report = reports.DashboardReport(self.options.report_url, self)
             handlers.append(self.report)
@@ -250,11 +250,7 @@ class TestRun(object):
             manifests=[os.path.join(self.repository_path, self.manifest_path)],
             strict=False)
 
-        try:
-            self._mozmill.run(*manifest.tests)
-        except SystemExit:
-            # Mozmill itself calls sys.exit(1) but we do not want to exit
-            pass
+        self._mozmill.run(manifest.tests)
 
         # Whenever a test fails it has to be marked, so we quit with the correct exit code
         self.last_failed_tests = self.last_failed_tests or self._mozmill.results.fails
@@ -282,11 +278,11 @@ class TestRun(object):
                     self.prepare_binary(binary)
                     self.prepare_repository()
                     self.run_tests()
-                    self._mozmill.results.finish(self._mozmill.handlers)
                 except Exception, e:
                     print str(e)
                     self.last_exception = e
                 finally:
+                    self._mozmill.results.finish(self._mozmill.handlers)
                     self.cleanup_binary(binary)
 
         finally:
