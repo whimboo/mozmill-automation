@@ -134,17 +134,6 @@ class TestRun(object):
             else:
                 self.addon_list.append(addon)
 
-    def prepare_repository(self):
-        """ Update the repository to the needed branch. """
-
-        # Retrieve the Gecko branch from the application.ini file
-        ini = application.ApplicationIni(self._application)
-        repository_url = ini.get('App', 'SourceRepository')
-
-        # Update the mozmill-test repository to match the Gecko branch
-        branch_name = self._repository.identify_branch(repository_url)
-        self._repository.update(branch_name)
-
     def prepare_tests(self):
         """ Preparation which has to be done before starting a test. """
 
@@ -180,10 +169,6 @@ class TestRun(object):
             if not os.path.isdir(path):
                 os.makedirs(path)
             self._mozmill.persisted["screenshotPath"] = path
-
-    def addons_event(self, obj):
-        if not self.installed_addons:
-            self.installed_addons = obj
 
     def graphics_event(self, obj):
         if not self.graphics:
@@ -246,8 +231,16 @@ class TestRun(object):
                 self._folder = folder if not os.path.isdir(self.binary) else self.binary
                 self._application = self.binary
 
-            self.prepare_repository()
+            # Prepare the repository
+            ini = application.ApplicationIni(self._application)
+            repository_url = ini.get('App', 'SourceRepository')
+    
+            # Update the mozmill-test repository to match the Gecko branch
+            branch_name = self._repository.identify_branch(repository_url)
+            self._repository.update(branch_name)
+
             self.run_tests()
+
         finally:
             self._mozmill.results.finish(self._mozmill.handlers)
 
