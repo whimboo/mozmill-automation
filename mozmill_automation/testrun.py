@@ -113,23 +113,6 @@ class TestRun(object):
             print "Uninstall build: %s" % self._folder
             mozinstall.uninstall(self._folder)
 
-    def clone_repository(self):
-        """ Clones the repository to a local temporary location. """
-        try:
-            # XXX: mktemp is marked as deprecated but lets use it because with
-            # older versions of Mercurial the target folder should not exist.
-            self.repository_path = tempfile.mktemp(".mozmill-tests")
-            self._repository = repository.Repository(self.repository_url,
-                                                     self.repository_path)
-            self._repository.clone()
-        except Exception, e:
-            raise Exception("Failure in setting up the mozmill-tests repository. " +
-                            e.message)
-
-    def cleanup_repository(self):
-        """ Removes the local version of the repository. """
-        self._repository.remove()
-
     def download_addon(self, url, target_path):
         """ Download the XPI file. """
         try:
@@ -258,7 +241,16 @@ class TestRun(object):
             print "*** No builds have been specified. Use --help to see all options."
             return
 
-        self.clone_repository()
+        try:
+            # XXX: mktemp is marked as deprecated but lets use it because with
+            # older versions of Mercurial the target folder should not exist.
+            self.repository_path = tempfile.mktemp(".mozmill-tests")
+            self._repository = repository.Repository(self.repository_url,
+                                                     self.repository_path)
+            self._repository.clone()
+        except Exception, e:
+            raise Exception("Failure in setting up the mozmill-tests repository. " +
+                            e.message)
 
         if self.options.addons:
             self.prepare_addons()
@@ -279,7 +271,9 @@ class TestRun(object):
 
         finally:
             self.remove_downloaded_addons()
-            self.cleanup_repository()
+
+            # Remove the temporarily cloned repository
+            self._repository.remove()
 
             # If an exception has been thrown for any of the builds under test
             # re-throw the exact same exception again. We just need it for the
