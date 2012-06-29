@@ -15,6 +15,7 @@ import mozmill.logger
 
 import application
 import errors
+import files
 import report
 import reports
 import repository
@@ -101,13 +102,10 @@ class TestRun(object):
 
     def _generate_custom_report(self):
         if self.options.junit_file:
-            filename = self._get_unique_filename(self.options.junit_file)
+            filename = files.get_unique_filename(self.options.junit_file,
+                                                 self.testrun_index)
             custom_report = self.update_report(self._mozmill.mozmill.get_report())
             report.JUnitReport(custom_report, filename)
-
-    def _get_unique_filename(self, filename):
-        (basename, ext) = os.path.splitext(filename)
-        return '%s_%i%s' % (basename, self.testrun_index, ext)
 
     def cleanup_binary(self, binary):
         """ Remove the build when it has been installed before. """
