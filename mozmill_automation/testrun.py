@@ -158,9 +158,6 @@ class TestRun(object):
             mozmill_args['jsbridge_timeout'] = self.timeout
         self._mozmill = mozmill.MozMill.create(**mozmill_args)
 
-        self.installed_addons = None
-        self._mozmill.add_listener(self.addons_event, eventType='mozmill.installedAddons')
-
         self.graphics = None
         self._mozmill.add_listener(self.graphics_event, eventType='mozmill.graphics')
 
