@@ -74,7 +74,7 @@ class TestRun(object):
     def __init__(self, args=sys.argv[1:], debug=False, repository_path=None,
                  manifest_path=None, timeout=None):
 
-        usage = "usage: %prog [options] (binaries|folders)"
+        usage = "usage: %prog [options] binary"
         self.parser = optparse.OptionParser(usage=usage)
         for names, opts in self.parser_options.items():
             self.parser.add_option(*names, **opts)
@@ -82,7 +82,10 @@ class TestRun(object):
         # Consume the system arguments
         del sys.argv[1:]
 
-        self.binaries = self.args
+        if len(self.args) > 1:
+            self.parser.error("Exactly one binary has to be specified.")
+
+        self.binary = self.args[0]
         self.debug = debug
         self.timeout = timeout
         self.repository_path = repository_path
@@ -214,11 +217,6 @@ class TestRun(object):
     def run(self):
         """ Run tests for all specified builds. """
 
-        # If no binaries have been specified we cancel the test-run
-        if not self.binaries:
-            print "*** No builds have been specified. Use --help to see all options."
-            return
-
         try:
             # XXX: mktemp is marked as deprecated but lets use it because with
             # older versions of Mercurial the target folder should not exist.
@@ -234,47 +232,34 @@ class TestRun(object):
             self.prepare_addons()
 
         try:
-            # Run tests for each binary
-            for binary in self.binaries:
-                try:
-                    # Prepare the binary for the test run
-                    if mozinstall.is_installer(binary):
-                        install_path = tempfile.mkdtemp(".binary")
-            
-                        print "Install build: %s" % binary
-                        self._folder = mozinstall.install(binary, install_path)
-                        self._application = mozinstall.get_binary(self._folder,
-                                                                  self.options.application)
-                    else:
-                        # TODO: Ensure that self._folder is the same as from mozinstall
-                        folder = os.path.dirname(binary)
-                        self._folder = folder if not os.path.isdir(binary) else binary
-                        self._application = binary
+            # Prepare the binary for the test run
+            if mozinstall.is_installer(self.binary):
+                install_path = tempfile.mkdtemp(".binary")
+    
+                print "Install build: %s" % self.binary
+                self._folder = mozinstall.install(self.binary, install_path)
+                self._application = mozinstall.get_binary(self._folder,
+                                                          self.options.application)
+            else:
+                # TODO: Ensure that self._folder is the same as from mozinstall
+                folder = os.path.dirname(self.binary)
+                self._folder = folder if not os.path.isdir(self.binary) else self.binary
+                self._application = self.binary
 
-                    self.prepare_repository()
-                    self.run_tests()
-                except Exception, e:
-                    print str(e)
-                    self.last_exception = e
-                finally:
-                    self._mozmill.results.finish(self._mozmill.handlers)
-
-                    # Remove the build when it has been installed before
-                    if mozinstall.is_installer(binary):
-                        print "Uninstall build: %s" % self._folder
-                        mozinstall.uninstall(self._folder)
-
+            self.prepare_repository()
+            self.run_tests()
         finally:
+            self._mozmill.results.finish(self._mozmill.handlers)
+
+            # Remove the build when it has been installed before
+            if mozinstall.is_installer(self.binary):
+                print "Uninstall build: %s" % self._folder
+                mozinstall.uninstall(self._folder)
+
             self.remove_downloaded_addons()
 
             # Remove the temporarily cloned repository
             self._repository.remove()
-
-            # If an exception has been thrown for any of the builds under test
-            # re-throw the exact same exception again. We just need it for the
-            # exit code
-            if self.last_exception:
-                raise self.last_exception
 
             # If a test has been failed ensure that we exit with status 2
             if self.last_failed_tests:
