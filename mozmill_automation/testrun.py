@@ -107,12 +107,6 @@ class TestRun(object):
             custom_report = self.update_report(self._mozmill.mozmill.get_report())
             report.JUnitReport(custom_report, filename)
 
-    def cleanup_binary(self, binary):
-        """ Remove the build when it has been installed before. """
-        if mozinstall.is_installer(binary):
-            print "Uninstall build: %s" % self._folder
-            mozinstall.uninstall(self._folder)
-
     def download_addon(self, url, target_path):
         """ Download the XPI file. """
         try:
@@ -136,22 +130,6 @@ class TestRun(object):
                 self.addon_list.append(path)
             else:
                 self.addon_list.append(addon)
-
-    def prepare_binary(self, binary):
-        """ Prepare the binary for the test run. """
-
-        if mozinstall.is_installer(binary):
-            install_path = tempfile.mkdtemp(".binary")
-
-            print "Install build: %s" % binary
-            self._folder = mozinstall.install(binary, install_path)
-            self._application = mozinstall.get_binary(self._folder,
-                                                      self.options.application)
-        else:
-            # TODO: Ensure that self._folder is the same as from mozinstall
-            folder = os.path.dirname(binary)
-            self._folder = folder if not os.path.isdir(binary) else binary
-            self._application = binary
 
     def prepare_repository(self):
         """ Update the repository to the needed branch. """
@@ -259,7 +237,20 @@ class TestRun(object):
             # Run tests for each binary
             for binary in self.binaries:
                 try:
-                    self.prepare_binary(binary)
+                    # Prepare the binary for the test run
+                    if mozinstall.is_installer(binary):
+                        install_path = tempfile.mkdtemp(".binary")
+            
+                        print "Install build: %s" % binary
+                        self._folder = mozinstall.install(binary, install_path)
+                        self._application = mozinstall.get_binary(self._folder,
+                                                                  self.options.application)
+                    else:
+                        # TODO: Ensure that self._folder is the same as from mozinstall
+                        folder = os.path.dirname(binary)
+                        self._folder = folder if not os.path.isdir(binary) else binary
+                        self._application = binary
+
                     self.prepare_repository()
                     self.run_tests()
                 except Exception, e:
@@ -267,7 +258,11 @@ class TestRun(object):
                     self.last_exception = e
                 finally:
                     self._mozmill.results.finish(self._mozmill.handlers)
-                    self.cleanup_binary(binary)
+
+                    # Remove the build when it has been installed before
+                    if mozinstall.is_installer(binary):
+                        print "Uninstall build: %s" % self._folder
+                        mozinstall.uninstall(self._folder)
 
         finally:
             self.remove_downloaded_addons()
