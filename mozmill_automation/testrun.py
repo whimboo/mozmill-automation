@@ -57,7 +57,6 @@ class TestRun(object):
         self.testrun_index = 0
 
         self.last_failed_tests = None
-        self.last_exception = None
 
     def add_options(self, parser):
         """add options to the parser"""
