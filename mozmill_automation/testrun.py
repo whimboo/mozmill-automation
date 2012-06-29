@@ -30,60 +30,16 @@ MOZMILL_TESTS_REPOSITORIES = {
 class TestRun(object):
     """ Class to execute a Mozmill test-run. """
 
-    parser_options = {("-a", "--addons",): dict(dest="addons",
-                                                action="append",
-                                                default=None,
-                                                metavar="ADDONS",
-                                                help="Add-ons to install",
-                                                ),
-                      ("--application",): dict(dest="application",
-                                               choices=["firefox", "thunderbird"],
-                                               metavar="APP",
-                                               default="firefox",
-                                               help="Application Name, i.e. firefox, thunderbird"),
-                      ("--junit",): dict(dest="junit_file",
-                                         default=None,
-                                         metavar="PATH",
-                                         help="Create JUnit XML style report file at given path"),
-                      ("-l", "--logfile",): dict(dest="logfile",
-                                                 metavar="PATH",
-                                                 help="Path to the log file"),
-                      ('-p', "--profile",): dict(dest="profile",
-                                                 default=None,
-                                                 metavar="PATH",
-                                                 help="Profile path."),
-                      ("-r", "--report",): dict(dest="report_url",
-                                                metavar="URL",
-                                                help="Send results to the report server"),
-                      ("--repository",): dict(dest="repository_url",
-                                              default=None,
-                                              metavar="URL",
-                                              help="URL of a custom remote or local repository"),
-                      ("--screenshot-path",): dict(dest="screenshot_path",
-                                                   default=None,
-                                                   metavar="PATH",
-                                                   help="Path to use for screenshots"),
-                      ("--tag",): dict(dest="tags",
-                                       action="append",
-                                       default=None,
-                                       metavar="TAG",
-                                       help="Tag to apply to the report")
-}
-
-
     def __init__(self, args=sys.argv[1:], debug=False, repository_path=None,
                  manifest_path=None, timeout=None):
 
         usage = "usage: %prog [options] binary"
-        self.parser = optparse.OptionParser(usage=usage)
-        for names, opts in self.parser_options.items():
-            self.parser.add_option(*names, **opts)
-        (self.options, self.args) = self.parser.parse_args(args)
-        # Consume the system arguments
-        del sys.argv[1:]
+        parser = optparse.OptionParser(usage=usage)
+        self.add_options(parser)
+        self.options, self.args = parser.parse_args(args)
 
         if len(self.args) > 1:
-            self.parser.error("Exactly one binary has to be specified.")
+            parser.error("Exactly one binary has to be specified.")
 
         self.binary = self.args[0]
         self.debug = debug
@@ -102,6 +58,52 @@ class TestRun(object):
 
         self.last_failed_tests = None
         self.last_exception = None
+
+    def add_options(self, parser):
+        """add options to the parser"""
+        parser.add_option("-a", "--addons",
+                          dest="addons",
+                          action="append",
+                          metavar="ADDONS",
+                          help="add-ons to be installed")
+        parser.add_option("--application",
+                          dest="application",
+                          default="firefox",
+                          choices=["firefox", "thunderbird"],
+                          metavar="APPLICATION",
+                          help="application name [default: %default]")
+        parser.add_option("--junit",
+                          dest="junit_file",
+                          metavar="PATH",
+                          help="JUnit XML style report file")
+        parser.add_option("--report",
+                          dest="report_url",
+                          metavar="URL",
+                          help="send results to the report server")
+        parser.add_option("--repository",
+                          dest="repository_url",
+                          metavar="URL",
+                          help="URL of a custom repository")
+        parser.add_option("--screenshot-path",
+                          dest="screenshot_path",
+                          metavar="PATH",
+                          help="path to use for screenshots")
+        parser.add_option("--tag",
+                          dest="tags",
+                          action="append",
+                          metavar="TAG",
+                          help="Tag to apply to the report")
+
+        mozmill = optparse.OptionGroup(parser, "Mozmill options")
+        mozmill.add_option("-l", "--logfile",
+                          dest="logfile",
+                          metavar="PATH",
+                          help="path to log file")
+        mozmill.add_option('-p', "--profile",
+                          dest="profile",
+                          metavar="PATH",
+                          help="path to the profile")
+        parser.add_option_group(mozmill)
 
     def _generate_custom_report(self):
         if self.options.junit_file:
