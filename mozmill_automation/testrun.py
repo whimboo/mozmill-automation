@@ -14,20 +14,16 @@ import mozmill
 import mozmill.logger
 
 import application
+import errors
 import report
 import reports
 import repository
+
 
 MOZMILL_TESTS_REPOSITORIES = {
     'firefox' : "http://hg.mozilla.org/qa/mozmill-tests",
     'thunderbird' : "http://hg.mozilla.org/users/bugzilla_standard8.plus.com/qa-tests/",
 }
-
-
-class TestFailedException(Exception):
-    """ Exception for failed tests. """
-    def __init__(self):
-        Exception.__init__(self, "Some tests have failed.")
 
 
 class TestRun(object):
@@ -302,7 +298,7 @@ class TestRun(object):
 
             # If a test has been failed ensure that we exit with status 2
             if self.last_failed_tests:
-                raise TestFailedException()
+                raise errors.TestFailedException()
 
 
 class FunctionalTestRun(TestRun):
@@ -330,5 +326,5 @@ class FunctionalTestRun(TestRun):
 def functional_cli():
     try:
         FunctionalTestRun().run()
-    except TestFailedException:
+    except errors.TestFailedException:
         sys.exit(2)
