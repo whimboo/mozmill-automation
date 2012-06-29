@@ -47,11 +47,6 @@ class TestRun(object):
                       ("-l", "--logfile",): dict(dest="logfile",
                                                  metavar="PATH",
                                                  help="Path to the log file"),
-                      ("-P", "--port",): dict(dest="port",
-                                              default=None,
-                                              type="int",
-                                              metavar="PORT",
-                                              help="Port to use for JSBridge."),
                       ('-p', "--profile",): dict(dest="profile",
                                                  default=None,
                                                  metavar="PATH",
@@ -208,8 +203,6 @@ class TestRun(object):
                             handlers=handlers,
                             profile_args=profile_args,
                             runner_args=runner_args)
-        if self.options.port:
-            mozmill_args['jsbridge_port'] = self.options.port
         if self.timeout:
             mozmill_args['jsbridge_timeout'] = self.timeout
         self._mozmill = mozmill.MozMill.create(**mozmill_args)
