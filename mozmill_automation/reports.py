@@ -7,7 +7,6 @@ import os
 import xml.dom.minidom
 
 from mozmill.report import Report
-import sys
 
 import testrun
 
@@ -176,7 +175,6 @@ class JUnitReport(Report):
 
     def send_report(self, results, filename):
         """ Write JUnit report to file. """
-
         try:
             f = file(filename, 'w')
         except Exception, e:
