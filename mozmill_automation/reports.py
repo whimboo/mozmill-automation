@@ -63,7 +63,7 @@ class DashboardReport(Report):
         blacklist = ('timestamp', 'label')
         metrics = []
 
-        report['endurance'] = self.testrun.persisted['endurance']
+        report['endurance'] = self.testrun._mozmill.persisted['endurance']
         report['endurance']['results'] = self.testrun.endurance_results
 
         all_metrics = {}
@@ -90,7 +90,7 @@ class DashboardReport(Report):
         return report
 
     def get_update_results(self, report):
-        report['updates'] = self.testrun.persisted['updates']
+        report['updates'] = self.testrun._mozmill.persisted['updates']
 
         return report
 

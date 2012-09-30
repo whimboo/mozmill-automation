@@ -49,6 +49,7 @@ class TestRun(object):
         self.timeout = timeout
         self.repository_path = repository_path
         self.manifest_path = manifest_path
+        self.persisted = {}
 
         if self.options.repository_url:
             self.repository_url = self.options.repository_url
@@ -190,6 +191,12 @@ class TestRun(object):
             self.report = reports.DashboardReport(self.options.report_url, self)
             handlers.append(self.report)
 
+        if self.options.junit_file:
+            filename = files.get_unique_filename(self.options.junit_file,
+                                                 self.testrun_index)
+            self.junit_report = reports.JUnitReport(filename, self)
+            handlers.append(self.junit_report)
+
         # instantiate MozMill
         profile_args = dict(addons=self.addon_list)
         runner_args = dict(binary=self._application)
@@ -206,10 +213,8 @@ class TestRun(object):
 
         self._mozmill.persisted.update(self.persisted)
         self._mozmill.run(tests, self.options.restart)
-        self.persisted = self._mozmill.persisted
 
         self.results = self._mozmill.finish()
-        self._mozmill = None
 
         # Whenever a test fails it has to be marked, so we quit with the correct exit code
         self.last_failed_tests = self.last_failed_tests or self.results.fails
@@ -249,43 +254,11 @@ class TestRun(object):
             if self.options.addons:
                 self.prepare_addons()
 
-            # instantiate handlers
-            logger = mozmill.logger.LoggerListener(log_file=self.options.logfile,
-                                                   console_level=self.debug and 'DEBUG' or 'INFO',
-                                                   file_level=self.debug and 'DEBUG' or 'INFO',
-                                                   debug=self.debug)
-            handlers = [logger]
-            if self.options.report_url:
-                self.report = reports.DashboardReport(self.options.report_url, self)
-                handlers.append(self.report)
-
-            if self.options.junit_file:
-                filename = files.get_unique_filename(self.options.junit_file,
-                                                     self.testrun_index)
-                self.junit_report = reports.JUnitReport(filename, self)
-                handlers.append(self.junit_report)
-
-            # instantiate MozMill
-            profile_args = dict(addons=self.addon_list)
-            runner_args = dict(binary=self._application)
-            mozmill_args = dict(app=self.options.application,
-                                handlers=handlers,
-                                profile_args=profile_args,
-                                runner_args=runner_args)
-            if self.timeout:
-                mozmill_args['jsbridge_timeout'] = self.timeout
-            self._mozmill = mozmill.MozMill.create(**mozmill_args)
-
-            self.graphics = None
-            self._mozmill.add_listener(self.graphics_event, eventType='mozmill.graphics')
-
-            self.persisted = {}
-
             if self.options.screenshot_path:
                 path = os.path.abspath(self.options.screenshot_path)
                 if not os.path.isdir(path):
                     os.makedirs(path)
-                self._mozmill.persisted["screenshotPath"] = path
+                self.persisted["screenshotPath"] = path
 
             self.run_tests()
 
