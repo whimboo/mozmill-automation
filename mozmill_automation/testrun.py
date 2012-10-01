@@ -464,7 +464,7 @@ class UpdateTestRun(TestRun):
     def prepare_channel(self):
         update_channel = application.UpdateChannel(self._application)
 
-        if self.options.channel is None:
+        if not self.options.channel:
             self.channel = update_channel.channel
         else:
             update_channel.channel = self.options.channel
@@ -491,7 +491,7 @@ class UpdateTestRun(TestRun):
 
         # Run fallback update test
         if not self.options.no_fallback:
-            # Restoring application backup to run direct update tests
+            # Restore backup of original application version first
             self.restore_application()
 
             self.run_update_tests(True)
