@@ -299,16 +299,16 @@ class AddonsTestRun(TestRun):
     def add_options(self, parser):
         addons = optparse.OptionGroup(parser, "Add-ons options")
         addons.add_option("--target-addons",
-                             dest="target_addons",
-                             default=[],
-                             metavar="ID",
-                             help="List of add-ons to test from the mozmill-test repository, "
-                                  "e.g. ide@seleniumhq.org")
+                          dest="target_addons",
+                          default=[],
+                          metavar="ID",
+                          help="list of add-ons to test from the mozmill-test repository, "
+                               "e.g. ide@seleniumhq.org")
         addons.add_option("--with-untrusted",
-                             dest="with_untrusted",
-                             default=False,
-                             action="store_true",
-                             help="Also run tests for add-ons which are not stored on AMO")
+                          dest="with_untrusted",
+                          default=False,
+                          action="store_true",
+                          help="run tests for add-ons which are not stored on AMO")
         parser.add_option_group(addons)
 
         TestRun.add_options(self, parser)
@@ -323,18 +323,22 @@ class AddonsTestRun(TestRun):
     def get_download_url(self):
         """ Read the addon.ini file and get the URL of the XPI. """
 
+        filename = None
+
+        # Get the platform the script is running on
+        if sys.platform in ("cygwin", "win32"):
+            platform = "win"
+        elif sys.platform in ("darwin"):
+            platform = "mac"
+        elif sys.platform in ("linux2", "sunos5"):
+            platform = "linux"
+        else:
+            platform = None
+
         try:
             filename = os.path.join(self.repository_path, self._addon_path, "addon.ini")
             config = ConfigParser.RawConfigParser()
             config.read(filename)
-
-            # Get the platform the script is running on
-            if sys.platform in ("cygwin", "win32"):
-                platform = "win"
-            elif sys.platform in ("darwin"):
-                platform = "mac"
-            elif sys.platform in ("linux2", "sunos5"):
-                platform = "linux"
 
             return config.get("download", platform)
         except Exception, e:
@@ -354,7 +358,8 @@ class AddonsTestRun(TestRun):
 
                 try:
                     url = self.get_download_url()
-                except errors.NotFoundException:
+                except errors.NotFoundException, e:
+                    print str(e)
                     continue
 
                 # Check if the download URL is trusted and we can proceed
@@ -367,10 +372,9 @@ class AddonsTestRun(TestRun):
                 self.target_addon = self.download_addon(url, tempfile.gettempdir())
 
                 # Run normal tests if some exist
-                self.manifest_path = os.path.join(self._addon_path,
-                                                  'tests', 'manifest.ini')
-
                 try:
+                    self.manifest_path = os.path.join(self._addon_path,
+                                                      'tests', 'manifest.ini')
                     self.restart_tests = False
                     self.addon_list.append(self.target_addon)
                     TestRun.run_tests(self)
@@ -380,9 +384,9 @@ class AddonsTestRun(TestRun):
                     self.addon_list.remove(self.target_addon)
 
                 # Run restart tests if some exist
-                self.manifest_path = os.path.join(self._addon_path,
-                                                  'restartTests', 'manifest.ini')
                 try:
+                    self.manifest_path = os.path.join(self._addon_path,
+                                                      'restartTests', 'manifest.ini')
                     self.restart_tests = True
                     self.addon_list.append(self.target_addon)
                     TestRun.run_tests(self)
