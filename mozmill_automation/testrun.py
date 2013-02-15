@@ -302,6 +302,9 @@ class EnduranceTestRun(TestRun):
         self.timeout = self.options.delay + 60
         self.options.restart = self.options.no_restart
 
+        self.listeners.append((self.endurance_event, 'mozmill.enduranceResults'))
+
+
     def add_options(self, parser):
         endurance = optparse.OptionGroup(parser, "Endurance options")
         endurance.add_option("--delay",
@@ -348,7 +351,6 @@ class EnduranceTestRun(TestRun):
         """ Execute the endurance tests in sequence. """
 
         self.endurance_results = []
-        self.listeners.append((self.endurance_event, 'mozmill.enduranceResults'))
         self.persisted['endurance'] = {'delay': self.delay,
                                        'iterations': self.options.iterations,
                                        'entities': self.options.entities,
