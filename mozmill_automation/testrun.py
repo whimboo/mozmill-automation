@@ -211,7 +211,7 @@ class TestRun(object):
         self._mozmill = mozmill.MozMill.create(**mozmill_args)
 
         self.graphics = None
-        self._mozmill.add_listener(self.graphics_event, eventType='mozmill.graphics')
+        self.listeners.append((self.graphics_event, 'mozmill.graphics'))
 
         for listener in self.listeners:
             self._mozmill.add_listener(listener[0], eventType=listener[1])
