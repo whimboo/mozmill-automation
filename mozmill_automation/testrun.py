@@ -380,6 +380,7 @@ class AddonsTestRun(TestRun):
                     TestRun.run_tests(self)
                 except Exception, e:
                     print str(e)
+                    self.last_exception = e
                 finally:
                     self.addon_list.remove(self.target_addon)
 
@@ -392,11 +393,13 @@ class AddonsTestRun(TestRun):
                     TestRun.run_tests(self)
                 except Exception, e:
                     print str(e)
+                    self.last_exception = e
                 finally:
                     self.addon_list.remove(self.target_addon)
 
             except Exception, e:
                 print str(e)
+                self.last_exception = e
             finally:
                 if self.target_addon:
                     try:
