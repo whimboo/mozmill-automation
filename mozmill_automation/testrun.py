@@ -50,7 +50,9 @@ class TestRun(object):
         self.repository_path = repository_path
         self.manifest_path = manifest_path
         self.persisted = {}
-        self.listeners = []
+
+        # default listeners
+        self.listeners = [(self.graphics_event, 'mozmill.graphics')]
 
         if self.options.repository_url:
             self.repository_url = self.options.repository_url
@@ -211,7 +213,6 @@ class TestRun(object):
         self._mozmill = mozmill.MozMill.create(**mozmill_args)
 
         self.graphics = None
-        self.listeners.append((self.graphics_event, 'mozmill.graphics'))
 
         for listener in self.listeners:
             self._mozmill.add_listener(listener[0], eventType=listener[1])
