@@ -12,25 +12,25 @@ except IOError:
     description = None
 
 NAME = 'mozmill-automation'
-VERSION = '0.1'
+VERSION = '1.5.21'
 
 setup(name=NAME,
       version=VERSION,
       description="Automation scripts for Mozmill test execution",
       long_description=description,
-      # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      classifiers=['Environment :: Console',
+      classifiers=['Development Status :: 5'
+                   'Environment :: Console',
                    'Intended Audience :: Developers',
                    'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
                    'Natural Language :: English',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python',
-                   'Topic :: Software Development :: Libraries :: Python Modules',
-                  ],
+                   'Topic :: Software Development :: Libraries :: Python Modules'
+                   ],
       keywords='mozilla',
       author='Mozilla Automation and Tools team',
       author_email='tools@lists.mozilla.org',
-      url='https://github.com/whimboo/mozmill-automation',
+      url='https://github.com/mozilla/mozmill-automation',
       license='MPL 2.0',
       packages=find_packages(exclude=['legacy']),
       include_package_data=True,
@@ -44,5 +44,5 @@ setup(name=NAME,
       testrun_l10n = mozmill_automation:l10n_cli
       testrun_remote = mozmill_automation:remote_cli
       testrun_update = mozmill_automation:update_cli
-      """,
+      """
       )
