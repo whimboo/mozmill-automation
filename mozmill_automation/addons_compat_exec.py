@@ -14,5 +14,5 @@ def compat_addons_cli():
     if not len(args) is 1:
         parser.error('A configuration file has to be specified.')
 
-    cbd = CompatibleByDefault(args, options.cfg_file, options.repository)
+    cbd = CompatibleByDefault(args[0], options.repository)
     cbd.run()
