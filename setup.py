@@ -33,7 +33,9 @@ setup(name=NAME,
       url='https://github.com/mozilla/mozmill-automation',
       license='MPL 2.0',
       packages=find_packages(exclude=['legacy']),
-      include_package_data=True,
+      package_data={
+          'mozmill_automation':['configs/testrun_compat_addons.json.example']
+          },
       zip_safe=False,
       entry_points="""
       # -*- Entry points: -*-
@@ -44,5 +46,6 @@ setup(name=NAME,
       testrun_l10n = mozmill_automation:l10n_cli
       testrun_remote = mozmill_automation:remote_cli
       testrun_update = mozmill_automation:update_cli
+      testrun_compat_addons = mozmill_automation:compat_addons_cli
       """
       )

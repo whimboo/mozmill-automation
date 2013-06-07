@@ -984,7 +984,7 @@ class UpdateTestRun(TestRun):
 def exec_testrun(cls):
     try:
         cls().run()
-    except errors.TestFailedException:
+    except TestFailedException:
         sys.exit(2)
 
 
