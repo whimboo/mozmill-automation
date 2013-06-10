@@ -3,4 +3,4 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from testrun import *
-from addons_compat_exec import *
+from compat_by_default import *

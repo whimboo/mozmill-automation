@@ -13,6 +13,7 @@ except IOError:
 
 NAME = 'mozmill-automation'
 VERSION = '1.5.21'
+DEPS = ["mercurial==2.1","mozdownload==1.7.2","mozmill==1.5.21"]
 
 setup(name=NAME,
       version=VERSION,
@@ -32,6 +33,7 @@ setup(name=NAME,
       author_email='tools@lists.mozilla.org',
       url='https://github.com/mozilla/mozmill-automation',
       license='MPL 2.0',
+      install_requires=DEPS,
       packages=find_packages(exclude=['legacy']),
       package_data={
           'mozmill_automation':['configs/testrun_compat_addons.json.example']
