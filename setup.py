@@ -13,11 +13,16 @@ except IOError:
 
 NAME = 'mozmill-automation'
 VERSION = '1.5.21'
-DEPS = ["mercurial==2.1","mozdownload==1.7.2","mozmill==1.5.21"]
+
+DEPS = [
+        'mercurial',
+        'mozdownload',
+        'mozmill==1.5.21'
+        ]
 
 setup(name=NAME,
       version=VERSION,
-      description="Automation scripts for Mozmill test execution",
+      description='Automation scripts for Mozmill test execution',
       long_description=description,
       classifiers=['Development Status :: 5'
                    'Environment :: Console',
@@ -35,9 +40,9 @@ setup(name=NAME,
       license='MPL 2.0',
       install_requires=DEPS,
       packages=find_packages(exclude=['legacy']),
-      package_data={
-          'mozmill_automation':['configs/testrun_compat_addons.json.example']
-          },
+      package_data={'mozmill_automation': [
+          'configs/testrun_compat_addons.json.example'
+          ]},
       zip_safe=False,
       entry_points="""
       # -*- Entry points: -*-
