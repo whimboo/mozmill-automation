@@ -42,7 +42,7 @@ setup(name=NAME,
       packages=find_packages(exclude=['legacy']),
       package_data={'mozmill_automation': [
           'configs/testrun_compat_addons.json.example'
-          ]},
+      ]},
       zip_safe=False,
       entry_points="""
       # -*- Entry points: -*-
