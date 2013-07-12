@@ -42,6 +42,16 @@ The `testrun_update` script executes update tests for Firefox, which ensures
 that an update is always correctly performed for Firefox.
 
 When running update tests, you have the option of providing an update
-channel. The valid update channels are: nightly, nightlytest, aurora,
-auroratest, beta, betatest, release, releasetest, esr, esrtest, and
-esr[VERSION]-nightly (for example esr17-nightly)
+channel. The valid update channels are:
+
+* nightly
+* nightlytest
+* aurora
+* auroratest
+* beta
+* betatest
+* release
+* releasetest
+* esr
+* esrtest
+* esr[VERSION]-nightly (for example esr17-nightly)
