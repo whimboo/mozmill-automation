@@ -14,6 +14,9 @@ except IOError:
 NAME = 'mozmill-automation'
 VERSION = '0.1'
 
+# mozmill-automation package below includes mercurial, mozmill and mozinstall
+dependencies = 'mozmill-automation==2.0rc4'
+
 setup(name=NAME,
       version=VERSION,
       description="Automation scripts for Mozmill test execution",
@@ -30,11 +33,12 @@ setup(name=NAME,
       keywords='mozilla',
       author='Mozilla Automation and Tools team',
       author_email='tools@lists.mozilla.org',
-      url='https://github.com/whimboo/mozmill-automation',
+      url='https://github.com/mozilla/mozmill-automation',
       license='MPL 2.0',
       packages=find_packages(exclude=['legacy']),
       include_package_data=True,
       zip_safe=False,
+      install_requires=dependencies,
       entry_points="""
       # -*- Entry points: -*-
       [console_scripts]
