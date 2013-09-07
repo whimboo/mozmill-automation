@@ -195,7 +195,7 @@ class TestRun(object):
         handlers = [logger]
         
         if self.options.report_url[-1] != '/':
-            self.options.report_url+='/'
+            self.options.report_url += '/'
         
         if self.options.report_url:
             self.report = reports.DashboardReport(self.options.report_url, self)
