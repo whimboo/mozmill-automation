@@ -38,9 +38,8 @@ import mozinfo
 import os
 import re
 import shutil
-from subprocess import check_output
 
-from errors import *
+import process
 
 
 class MercurialRepository(object):
@@ -70,7 +69,7 @@ class MercurialRepository(object):
         command.extend(arguments)
         command.extend(['--cwd', os.getcwd() if is_cloning else self.path])
 
-        return check_output(command).strip()
+        return process.check_output(command).strip()
 
     @property
     def exists(self):
