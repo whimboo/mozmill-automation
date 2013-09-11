@@ -280,6 +280,7 @@ class TestRun(object):
             self.remove_downloaded_addons()
 
             # Remove the temporarily cloned repository
+            print "*** Removing test repository '%s'" % self.repository.path
             self.repository.remove()
 
             # If a test has been failed ensure that we exit with status 2
