@@ -65,6 +65,9 @@ class TestRun(object):
         self.testrun_index = 0
 
         self.last_failed_tests = None
+        self.exception_type = None
+        self.exception = None
+        self.tb = None
 
     def _get_binary(self):
         """ Returns the binary to test. """
@@ -303,8 +306,7 @@ class TestRun(object):
             self.run_tests()
 
         except Exception, e:
-            exception_type, exception, tb = sys.exc_info()
-            traceback.print_exception(exception_type, exception, tb)
+            self.exception_type, self.exception, self.tb = sys.exc_info()
 
         finally:
             # Remove the build when it has been installed before
@@ -317,6 +319,12 @@ class TestRun(object):
             # Remove the temporarily cloned repository
             print "*** Removing test repository '%s'" % self.repository.path
             self.repository.remove()
+
+            # If an exception has been thrown, print it here in the end
+            # We just need it for the exit code and giving that we save reports
+            # with failing tests, this one has priority
+            if self.exception_type:
+                traceback.print_exception(self.exception_type, self.exception, self.tb)
 
             # If a test has been failed ensure that we exit with status 2
             if self.last_failed_tests:
@@ -421,7 +429,7 @@ class AddonsTestRun(TestRun):
                     TestRun.run_tests(self)
                 except Exception, e:
                     print str(e)
-                    self.last_exception = e
+                    self.exception_type, self.exception, self.tb = sys.exc_info()
                 finally:
                     self.addon_list.remove(self.target_addon)
 
@@ -434,13 +442,14 @@ class AddonsTestRun(TestRun):
                     TestRun.run_tests(self)
                 except Exception, e:
                     print str(e)
-                    self.last_exception = e
+                    self.exception_type, self.exception, self.tb = sys.exc_info()
                 finally:
                     self.addon_list.remove(self.target_addon)
 
             except Exception, e:
                 print str(e)
-                self.last_exception = e
+                self.exception_type, self.exception, self.tb = sys.exc_info()
+
             finally:
                 if self.target_addon:
                     try:
@@ -697,7 +706,7 @@ class UpdateTestRun(TestRun):
                 shutil.rmtree(path)
             except Exception, e:
                 print "Failed to remove the update staging folder: " + str(e)
-                self.last_exception = e
+                self.exception_type, self.exception, self.tb = sys.exc_info()
 
 
 def exec_testrun(cls):
