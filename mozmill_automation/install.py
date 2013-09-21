@@ -155,7 +155,7 @@ class Installer(object):
                     print "*** Uninstalling %s" % folder
                     cmdArgs = ["%suninstall\helper.exe" % folder, "/S"]
                     result = subprocess.call(cmdArgs)
-            
+
                     # The uninstaller spawns another process so the system call returns
                     # immediately. We have to wait until the uninstall folder has been
                     # removed or until we run into a timeout.
