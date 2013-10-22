@@ -320,11 +320,11 @@ class TestRun(object):
             print "*** Removing test repository '%s'" % self.repository.path
             self.repository.remove()
 
-            # If an exception has been thrown, print it here in the end
-            # We just need it for the exit code and giving that we save reports
-            # with failing tests, this one has priority
+            # If an exception has been thrown, print it here and exit with status 3.
+            # Giving that we save reports with failing tests, this one has priority
             if self.exception_type:
                 traceback.print_exception(self.exception_type, self.exception, self.tb)
+                raise errors.TestrunAbortedException(self)
 
             # If a test has been failed ensure that we exit with status 2
             if self.last_failed_tests:
@@ -420,24 +420,9 @@ class AddonsTestRun(TestRun):
                 # Download the add-on
                 self.target_addon = self.download_addon(url, tempfile.gettempdir())
 
-                # Run normal tests if some exist
                 try:
                     self.manifest_path = os.path.join(self._addon_path,
                                                       'tests', 'manifest.ini')
-                    self.restart_tests = False
-                    self.addon_list.append(self.target_addon)
-                    TestRun.run_tests(self)
-                except Exception, e:
-                    print str(e)
-                    self.exception_type, self.exception, self.tb = sys.exc_info()
-                finally:
-                    self.addon_list.remove(self.target_addon)
-
-                # Run restart tests if some exist
-                try:
-                    self.manifest_path = os.path.join(self._addon_path,
-                                                      'restartTests', 'manifest.ini')
-                    self.restart_tests = True
                     self.addon_list.append(self.target_addon)
                     TestRun.run_tests(self)
                 except Exception, e:
@@ -714,7 +699,8 @@ def exec_testrun(cls):
         cls().run()
     except errors.TestFailedException:
         sys.exit(2)
-
+    except errors.TestrunAbortedException:
+        sys.exit(3)
 
 def addons_cli():
     exec_testrun(AddonsTestRun)
