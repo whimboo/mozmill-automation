@@ -61,9 +61,9 @@ class TestRun(object):
         self.persisted = {}
 
         if self.options.storage:
-            self.storage = os.path.abspath(self.options.storage)
+            self.workspace = os.path.abspath(self.options.storage)
         else:
-            self.storage = tempfile.mkdtemp('.mozstorage')
+            self.workspace = tempfile.mkdtemp('.mozstorage')
 
         # default listeners
         self.listeners = [(self.graphics_event, 'mozmill.graphics')]
@@ -145,10 +145,11 @@ class TestRun(object):
                           default=False,
                           action="store_true",
                           help="restart the application between tests")
-        parser.add_option("--storage",
-                          dest="storage",
+        parser.add_option("--workspace",
+                          dest="workspace",
                           metavar="PATH",
-                          help="path to the storage which contains test data")
+                          help="path to the workspace folder, which contains "
+                               "the testrun data [default: %tmp%]")
         parser.add_option("--tag",
                           dest="tags",
                           action="append",
@@ -204,10 +205,10 @@ class TestRun(object):
     def prepare_application(self, binary):
         # Prepare the binary for the test run
         if application.is_installer(self.binary, self.options.application):
-            install_path = os.path.join(self.storage, 'binary')
+            install_path = os.path.join(self.workspace, 'binary')
 
             print "*** Installing build: %s" % self.binary
-            self._folder = mozinstall.install(self.binary, self.storage)
+            self._folder = mozinstall.install(self.binary, install_path)
             self._application = mozinstall.get_binary(self._folder,
                                                       self.options.application)
         else:
@@ -267,7 +268,7 @@ class TestRun(object):
             handlers.append(self.junit_report)
 
         # instantiate MozMill
-        profile_path = os.path.join(self.storage, 'profile')
+        profile_path = os.path.join(self.workspace, 'profile')
         print '*** Creating profile: %s' % profile_path
 
         profile_args = dict(profile=profile_path,
@@ -318,9 +319,7 @@ class TestRun(object):
                 mozinfo.version,
                 mozinfo.bits)
 
-            # XXX: mktemp is marked as deprecated but lets use it because with
-            # older versions of Mercurial the target folder should not exist.
-            path = os.path.join(self.storage, 'mozmill-tests')
+            path = os.path.join(self.workspace, 'mozmill-tests')
             print "*** Cloning test repository to '%s'" % path
             self.repository.clone(path)
 
@@ -334,7 +333,7 @@ class TestRun(object):
             if self.options.addons:
                 self.prepare_addons()
 
-            path = os.path.join(self.storage, 'screenshots')
+            path = os.path.join(self.workspace, 'screenshots')
             if not os.path.isdir(path):
                 os.makedirs(path)
             self.persisted["screenshotPath"] = path
@@ -651,7 +650,7 @@ class UpdateTestRun(TestRun):
         # If a fallback update has to be performed, create a second copy
         # of the application to avoid running the installer twice
         if not self.options.no_fallback:
-            self._backup_folder = os.path.join(self.storage, 'binary_backup')
+            self._backup_folder = os.path.join(self.workspace, 'binary_backup')
 
             print "*** Creating backup of binary: %s" % self._backup_folder
             shutil.rmtree(self._backup_folder, True)
@@ -720,13 +719,8 @@ class UpdateTestRun(TestRun):
                 print "*** Removing updates staging folder: %s" % path
                 shutil.rmtree(path)
             except Exception, e:
-<<<<<<< HEAD
                 print "Failed to remove the update staging folder: " + str(e)
                 self.exception_type, self.exception, self.tb = sys.exc_info()
-=======
-                print "*** Failed to remove update the staging folder: " + str(e)
-                self.last_exception = e
->>>>>>> Introduce storage folder for Mozmill run
 
 
 def exec_testrun(cls):
