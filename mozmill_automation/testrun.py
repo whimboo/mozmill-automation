@@ -502,7 +502,10 @@ class AddonsTestRun(TestRun):
     def get_all_addons(self):
         """ Retrieves all add-ons inside the "addons" folder. """
 
-        path = os.path.join(self.repository.path, "tests", "addons")
+        path = os.path.join(self.repository.path, self.options.application, "tests", "addons")
+        if not os.path.isdir(path):
+            path = os.path.join(self.repository.path, "tests", "addons")
+
         return [entry for entry in os.listdir(path)
                       if os.path.isdir(os.path.join(path, entry))]
 
@@ -540,7 +543,10 @@ class AddonsTestRun(TestRun):
                 self.target_addon = None
 
                 # Get the download URL
-                self._addon_path = os.path.join('tests', 'addons', self._addon)
+                self._addon_path = os.path.join(self.options.application, 'tests', 'addons', self._addon)
+                if not os.path.isdir(os.path.join(self.repository.path, self._addon_path)):
+                    self._addon_path = os.path.join('tests', 'addons', self._addon)
+
                 url = self.get_download_url()
 
                 if url is None:
@@ -673,7 +679,10 @@ class EnduranceTestRun(TestRun):
         self.endurance_results = []
 
         try:
-            self.test_path = os.path.join('tests', 'endurance')
+            self.test_path = os.path.join(self.options.application, 'tests', 'endurance')
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'endurance')
+
             if self.options.reserved:
                 self.test_path = os.path.join(self.test_path, 'reserved', self.options.reserved)
             TestRun.run_tests(self)
@@ -735,7 +744,10 @@ class FunctionalTestRun(TestRun):
 
         try:
             self.restart_tests = False
-            self.test_path = os.path.join('tests', 'functional')
+            self.test_path = os.path.join(self.options.application, 'tests', 'functional')
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'functional')
+
             TestRun.run_tests(self)
         except Exception, e:
             print str(e)
@@ -743,7 +755,10 @@ class FunctionalTestRun(TestRun):
 
         try:
             self.restart_tests = True
-            self.test_path = os.path.join('tests', 'functional', 'restartTests')
+            self.test_path = os.path.join(self.options.application, 'tests', 'functional', 'restartTests')
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'functional', 'restartTests')
+
             TestRun.run_tests(self)
         except Exception, e:
             print str(e)
@@ -764,7 +779,10 @@ class L10nTestRun(TestRun):
 
         try:
             self.restart_tests = True
-            self.test_path = os.path.join('tests','l10n')
+            self.test_path = os.path.join(self.options.application, 'tests', 'l10n')
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'l10n')
+
             TestRun.run_tests(self)
         except Exception, e:
             print str(e)
@@ -785,7 +803,10 @@ class RemoteTestRun(TestRun):
 
         try:
             self.restart_tests = False
-            self.test_path = os.path.join('tests', 'remote')
+            self.test_path = os.path.join(self.options.application, 'tests', 'remote')
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'remote')
+
             TestRun.run_tests(self)
         except Exception, e:
             print str(e)
@@ -793,7 +814,10 @@ class RemoteTestRun(TestRun):
 
         try:
             self.restart_tests = True
-            self.test_path = os.path.join('tests', 'remote', 'restartTests')
+            self.test_path = os.path.join(self.options.application, 'tests', 'remote', 'restartTests')
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'remote', 'restartTests')
+
             TestRun.run_tests(self)
         except Exception, e:
             print str(e)
@@ -950,7 +974,10 @@ class UpdateTestRun(TestRun):
     def run_update_tests(self, is_fallback):
         try:
             folder = 'testFallbackUpdate' if is_fallback else 'testDirectUpdate'
-            self.test_path = os.path.join('tests', 'update', folder)
+            self.test_path = os.path.join(self.options.application, 'tests', 'update', folder)
+            if not os.path.isdir(os.path.join(self.repository.path, self.test_path)):
+                self.test_path = os.path.join('tests', 'update', folder)
+
             TestRun.run_tests(self)
         except Exception, e:
             print "Execution of test-run aborted: %s" % str(e)
