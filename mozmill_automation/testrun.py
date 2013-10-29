@@ -334,6 +334,21 @@ class TestRun(object):
         print "*** Updating branch of test repository to '%s'" % branch_name
         self.repository.update(branch_name)
 
+    def prepare_testrun(self, testrun, *args):
+        """ Preparation which has to be done before starting a testrun. """
+
+        app_path = os.path.join(self.repository.path, self.options.application)
+        if os.path.isdir(app_path):
+            # Check if the application supports this testrun
+            path = os.path.join(app_path, "tests", testrun, *args)
+            if not os.path.isdir(path):
+                raise errors.NotSupportedTestrunException(self)
+        # TODO: Remove this else block once we get the new repository structure landed
+        else:
+            path = os.path.join(self.repository.path, "tests", testrun, *args)
+
+        return path
+
     def prepare_tests(self):
         """ Preparation which has to be done before starting a test. """
 
@@ -496,15 +511,7 @@ class AddonsTestRun(TestRun):
     def get_all_addons(self):
         """ Retrieves all add-ons inside the "addons" folder. """
 
-        app_path = os.path.join(self.repository.path, self.options.application)
-        if os.path.isdir(app_path):
-            # Check if the application supports this testrun
-            path = os.path.join(app_path, "tests", "addons")
-            if not os.path.isdir(path):
-                raise errors.NoTestrunException(self)
-        else:
-            path = os.path.join(self.repository.path, "tests", "addons")
-
+        path = TestRun.prepare_testrun(self, "addons")
         return [entry for entry in os.listdir(path)
                       if os.path.isdir(os.path.join(path, entry))]
 
@@ -683,16 +690,7 @@ class EnduranceTestRun(TestRun):
         self.endurance_results = []
 
         try:
-            self.app_path = os.path.join(self.repository.path, self.options.application)
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path,
-                                              'tests',
-                                              'endurance')
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'endurance')
+            self.test_path = TestRun.prepare_testrun(self, 'endurance')
 
             if self.options.reserved:
                 self.test_path = os.path.join(self.test_path,
@@ -758,15 +756,7 @@ class FunctionalTestRun(TestRun):
         self.app_path = os.path.join(self.repository.path, self.options.application)
         try:
             self.restart_tests = False
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path,
-                                              'tests',
-                                              'functional')
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'functional')
+            self.test_path = TestRun.prepare_testrun(self, 'functional')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -776,16 +766,7 @@ class FunctionalTestRun(TestRun):
         try:
             print "Attempting to run restart tests"
             self.restart_tests = True
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path,
-                                              'tests',
-                                              'functional',
-                                              'restartTests')
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'functional', 'restartTests')
+            self.test_path = TestRun.prepare_testrun(self, 'functional', 'restartTests')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -807,14 +788,7 @@ class L10nTestRun(TestRun):
 
         try:
             self.restart_tests = True
-            self.app_path = os.path.join(self.repository.path, self.options.application)
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path, 'tests', 'l10n')
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'l10n')
+            self.test_path = TestRun.prepare_testrun(self, 'l10n')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -837,15 +811,7 @@ class RemoteTestRun(TestRun):
         self.app_path = os.path.join(self.repository.path, self.options.application)
         try:
             self.restart_tests = False
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path,
-                                              'tests',
-                                              'remote')
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'remote')
+            self.test_path = TestRun.prepare_testrun(self, 'remote')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -855,16 +821,7 @@ class RemoteTestRun(TestRun):
         try:
             print "Attempting to run restart tests"
             self.restart_tests = True
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path,
-                                              'tests',
-                                              'remote',
-                                              'restartTests')
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'remote', 'restartTests')
+            self.test_path = TestRun.prepare_testrun(self, 'remote', 'restartTests')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -1022,17 +979,7 @@ class UpdateTestRun(TestRun):
     def run_update_tests(self, is_fallback):
         try:
             folder = 'testFallbackUpdate' if is_fallback else 'testDirectUpdate'
-            self.app_path = os.path.join(self.repository.path, self.options.application)
-            if os.path.isdir(self.app_path):
-                # Check if the application supports this testrun
-                self.test_path = os.path.join(self.app_path,
-                                              'tests',
-                                              'update',
-                                              folder)
-                if not os.path.isdir(self.test_path):
-                    raise errors.NoTestrunException(self)
-            else:
-                self.test_path = os.path.join('tests', 'update', folder)
+            self.test_path = TestRun.prepare_testrun(self, 'update', folder)
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -1081,7 +1028,7 @@ def exec_testrun(cls):
         cls().run()
     except errors.TestFailedException:
         sys.exit(2)
-    except errors.NoTestrunException:
+    except errors.NotSupportedTestrunException:
         sys.exit(3)
 
 
