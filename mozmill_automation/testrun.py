@@ -420,16 +420,10 @@ class AddonsTestRun(TestRun):
                 # Download the add-on
                 self.target_addon = self.download_addon(url, tempfile.gettempdir())
 
-                try:
-                    self.manifest_path = os.path.join(self._addon_path,
-                                                      'tests', 'manifest.ini')
-                    self.addon_list.append(self.target_addon)
-                    TestRun.run_tests(self)
-                except Exception, e:
-                    print str(e)
-                    self.exception_type, self.exception, self.tb = sys.exc_info()
-                finally:
-                    self.addon_list.remove(self.target_addon)
+                self.manifest_path = os.path.join(self._addon_path,
+                                                  'tests', 'manifest.ini')
+                self.addon_list.append(self.target_addon)
+                TestRun.run_tests(self)
 
             except Exception, e:
                 print str(e)
@@ -437,6 +431,7 @@ class AddonsTestRun(TestRun):
 
             finally:
                 if self.target_addon:
+                    self.addon_list.remove(self.target_addon)
                     try:
                         # Remove downloaded add-on
                         if os.path.exists(self.target_addon):
