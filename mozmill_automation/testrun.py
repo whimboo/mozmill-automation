@@ -82,7 +82,7 @@ class TestRun(object):
                                                 help="Add-ons to install",
                                                ),
                       ("--application",): dict(dest="application",
-                                               choices=["firefox", "thunderbird"],
+                                               choices=["firefox", "metrofirefox", "thunderbird"],
                                                metavar="APP",
                                                default="firefox",
                                                help="Application Name, i.e. firefox, thunderbird"),
@@ -292,6 +292,21 @@ class TestRun(object):
         except Exception, e:
             print e
 
+    def get_tests_folder(self, testrun_id, *args):
+        """ Getting the correct tests path for the testrun. """
+
+        app_path = os.path.join(self.repository.path, self.options.application)
+        if os.path.isdir(app_path):
+            # Check if the application supports this testrun
+            path = os.path.join(app_path, 'tests', testrun_id, *args)
+            if not os.path.isdir(path):
+                raise errors.NotSupportedTestrunException(self)
+        # TODO: Remove this else block once we get the new repository structure landed
+        else:
+            path = os.path.join(self.repository.path, 'tests', testrun_id, *args)
+
+        return path
+
     def prepare_addons(self):
         """ Prepare the addons for the test run. """
 
@@ -333,21 +348,6 @@ class TestRun(object):
 
         print "*** Updating branch of test repository to '%s'" % branch_name
         self.repository.update(branch_name)
-
-    def prepare_testrun(self, testrun, *args):
-        """ Preparation which has to be done before starting a testrun. """
-
-        app_path = os.path.join(self.repository.path, self.options.application)
-        if os.path.isdir(app_path):
-            # Check if the application supports this testrun
-            path = os.path.join(app_path, "tests", testrun, *args)
-            if not os.path.isdir(path):
-                raise errors.NotSupportedTestrunException(self)
-        # TODO: Remove this else block once we get the new repository structure landed
-        else:
-            path = os.path.join(self.repository.path, "tests", testrun, *args)
-
-        return path
 
     def prepare_tests(self):
         """ Preparation which has to be done before starting a test. """
@@ -511,7 +511,7 @@ class AddonsTestRun(TestRun):
     def get_all_addons(self):
         """ Retrieves all add-ons inside the "addons" folder. """
 
-        path = TestRun.prepare_testrun(self, "addons")
+        path = TestRun.get_tests_folder(self, 'addons')
         return [entry for entry in os.listdir(path)
                       if os.path.isdir(os.path.join(path, entry))]
 
@@ -549,13 +549,11 @@ class AddonsTestRun(TestRun):
                 self.target_addon = None
 
                 # Get the download URL
-                self._addon_path = os.path.join(self.options.application,
-                                                'tests',
-                                                'addons',
-                                                self._addon)
-                if not os.path.isdir(os.path.join(self.repository.path,
-                                                  self._addon_path)):
-                    self._addon_path = os.path.join('tests', 'addons', self._addon)
+                self._addon_path = TestRun.get_tests_folder(self, 'addons',
+                                                            self._addon)
+                if not os.path.isdir(self._addon_path):
+                    self._addon_path = TestRun.get_tests_folder(self, 'tests',
+                                                                'addons', self._addon)
 
                 url = self.get_download_url()
 
@@ -690,7 +688,7 @@ class EnduranceTestRun(TestRun):
         self.endurance_results = []
 
         try:
-            self.test_path = TestRun.prepare_testrun(self, 'endurance')
+            self.test_path = TestRun.get_tests_folder(self, 'endurance')
 
             if self.options.reserved:
                 self.test_path = os.path.join(self.test_path,
@@ -753,10 +751,9 @@ class FunctionalTestRun(TestRun):
     def run_tests(self):
         """ Execute the normal and restart tests in sequence. """
 
-        self.app_path = os.path.join(self.repository.path, self.options.application)
         try:
             self.restart_tests = False
-            self.test_path = TestRun.prepare_testrun(self, 'functional')
+            self.test_path = TestRun.get_tests_folder(self, 'functional')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -766,7 +763,7 @@ class FunctionalTestRun(TestRun):
         try:
             print "Attempting to run restart tests"
             self.restart_tests = True
-            self.test_path = TestRun.prepare_testrun(self, 'functional', 'restartTests')
+            self.test_path = TestRun.get_tests_folder(self, 'functional', 'restartTests')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -788,7 +785,7 @@ class L10nTestRun(TestRun):
 
         try:
             self.restart_tests = True
-            self.test_path = TestRun.prepare_testrun(self, 'l10n')
+            self.test_path = TestRun.get_tests_folder(self, 'l10n')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -808,10 +805,9 @@ class RemoteTestRun(TestRun):
     def run_tests(self):
         """ Execute the normal and restart tests in sequence. """
 
-        self.app_path = os.path.join(self.repository.path, self.options.application)
         try:
             self.restart_tests = False
-            self.test_path = TestRun.prepare_testrun(self, 'remote')
+            self.test_path = TestRun.get_tests_folder(self, 'remote')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -821,7 +817,7 @@ class RemoteTestRun(TestRun):
         try:
             print "Attempting to run restart tests"
             self.restart_tests = True
-            self.test_path = TestRun.prepare_testrun(self, 'remote', 'restartTests')
+            self.test_path = TestRun.get_tests_folder(self, 'remote', 'restartTests')
 
             TestRun.run_tests(self)
         except Exception, e:
@@ -979,7 +975,7 @@ class UpdateTestRun(TestRun):
     def run_update_tests(self, is_fallback):
         try:
             folder = 'testFallbackUpdate' if is_fallback else 'testDirectUpdate'
-            self.test_path = TestRun.prepare_testrun(self, 'update', folder)
+            self.test_path = TestRun.get_tests_folder(self, 'update', folder)
 
             TestRun.run_tests(self)
         except Exception, e:
