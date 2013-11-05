@@ -551,9 +551,6 @@ class AddonsTestRun(TestRun):
                 # Get the download URL
                 self._addon_path = TestRun.get_tests_folder(self, 'addons',
                                                             self._addon)
-                if not os.path.isdir(self._addon_path):
-                    self._addon_path = TestRun.get_tests_folder(self, 'tests',
-                                                                'addons', self._addon)
 
                 url = self.get_download_url()
 
