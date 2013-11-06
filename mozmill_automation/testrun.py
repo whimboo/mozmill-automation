@@ -60,10 +60,10 @@ class TestRun(object):
         self.manifest_path = manifest_path
         self.persisted = {}
 
-        if self.options.storage:
-            self.workspace = os.path.abspath(self.options.storage)
+        if self.options.workspace:
+            self.workspace = os.path.abspath(self.options.workspace)
         else:
-            self.workspace = tempfile.mkdtemp('.mozstorage')
+            self.workspace = tempfile.mkdtemp('.workspace')
 
         # default listeners
         self.listeners = [(self.graphics_event, 'mozmill.graphics')]
@@ -145,16 +145,16 @@ class TestRun(object):
                           default=False,
                           action="store_true",
                           help="restart the application between tests")
-        parser.add_option("--workspace",
-                          dest="workspace",
-                          metavar="PATH",
-                          help="path to the workspace folder, which contains "
-                               "the testrun data [default: %tmp%]")
         parser.add_option("--tag",
                           dest="tags",
                           action="append",
                           metavar="TAG",
                           help="Tag to apply to the report")
+        parser.add_option("--workspace",
+                          dest="workspace",
+                          metavar="PATH",
+                          help="path to the workspace folder, which contains "
+                               "the testrun data [default: %tmp%]")
 
         mozmill = optparse.OptionGroup(parser, "Mozmill options")
         mozmill.add_option("-l", "--logfile",
