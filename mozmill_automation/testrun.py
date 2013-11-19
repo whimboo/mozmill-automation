@@ -559,7 +559,8 @@ class FunctionalTestRun(TestRun):
     def run_tests(self):
         """ Execute the functional tests. """
 
-        self.manifest_path = os.path.join(TestRun.get_tests_folder(self), "manifest.ini")
+        tests_path = TestRun.get_tests_folder(self)
+        self.manifest_path = os.path.join(tests_path, "manifest.ini")
 
         TestRun.run_tests(self)
 
@@ -576,7 +577,8 @@ class L10nTestRun(TestRun):
     def run_tests(self):
         """ Execute the existent l10n tests in sequence. """
 
-        self.manifest_path = os.path.join(TestRun.get_tests_folder(self), "manifest.ini")
+        tests_path = TestRun.get_tests_folder(self)
+        self.manifest_path = os.path.join(tests_path, "manifest.ini")
 
         TestRun.run_tests(self)
 
@@ -593,7 +595,8 @@ class RemoteTestRun(TestRun):
     def run_tests(self):
         """ Execute the normal and restart tests in sequence. """
 
-        self.manifest_path = os.path.join(TestRun.get_tests_folder(self), "manifest.ini")
+        tests_path = TestRun.get_tests_folder(self)
+        self.manifest_path = os.path.join(tests_path, "manifest.ini")
 
         TestRun.run_tests(self)
 
@@ -696,7 +699,8 @@ class UpdateTestRun(TestRun):
     def run_update_tests(self, is_fallback):
         try:
             type = 'testFallbackUpdate' if is_fallback else 'testDirectUpdate'
-            self.manifest_path = os.path.join(TestRun.get_tests_folder(self), type, "manifest.ini")
+            tests_path = TestRun.get_tests_folder(self)
+            self.manifest_path = os.path.join(tests_path, type, "manifest.ini")
 
             TestRun.run_tests(self)
         except Exception, e:
