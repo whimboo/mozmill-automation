@@ -389,7 +389,7 @@ class AddonsTestRun(TestRun):
     def get_all_addons(self):
         """ Retrieves all add-ons inside the "addons" folder. """
 
-        path = TestRun.get_tests_folder(self)
+        path = self.get_tests_folder()
         return [entry for entry in os.listdir(path)
                       if os.path.isdir(os.path.join(path, entry))]
 
@@ -430,7 +430,7 @@ class AddonsTestRun(TestRun):
                 self.target_addon = None
 
                 # Get the download URL
-                self._addon_path = TestRun.get_tests_folder(self, addon)
+                self._addon_path = self.get_tests_folder(addon)
 
                 try:
                     url = self.get_download_url()
@@ -536,7 +536,7 @@ class EnduranceTestRun(TestRun):
                                        'entities': self.options.entities,
                                        'restart': self.options.restart}
 
-        self.manifest_path = TestRun.get_tests_folder(self)
+        self.manifest_path = self.get_tests_folder()
         if not self.options.reserved:
             self.manifest_path = os.path.join(self.manifest_path,
                                               "manifest.ini")
@@ -559,7 +559,7 @@ class FunctionalTestRun(TestRun):
     def run_tests(self):
         """ Execute the functional tests. """
 
-        tests_path = TestRun.get_tests_folder(self)
+        tests_path = self.get_tests_folder()
         self.manifest_path = os.path.join(tests_path, "manifest.ini")
 
         TestRun.run_tests(self)
@@ -577,7 +577,7 @@ class L10nTestRun(TestRun):
     def run_tests(self):
         """ Execute the existent l10n tests in sequence. """
 
-        tests_path = TestRun.get_tests_folder(self)
+        tests_path = self.get_tests_folder()
         self.manifest_path = os.path.join(tests_path, "manifest.ini")
 
         TestRun.run_tests(self)
@@ -595,7 +595,7 @@ class RemoteTestRun(TestRun):
     def run_tests(self):
         """ Execute the normal and restart tests in sequence. """
 
-        tests_path = TestRun.get_tests_folder(self)
+        tests_path = self.get_tests_folder()
         self.manifest_path = os.path.join(tests_path, "manifest.ini")
 
         TestRun.run_tests(self)
@@ -699,7 +699,7 @@ class UpdateTestRun(TestRun):
     def run_update_tests(self, is_fallback):
         try:
             type = 'testFallbackUpdate' if is_fallback else 'testDirectUpdate'
-            tests_path = TestRun.get_tests_folder(self)
+            tests_path = self.get_tests_folder()
             self.manifest_path = os.path.join(tests_path, type, "manifest.ini")
 
             TestRun.run_tests(self)
