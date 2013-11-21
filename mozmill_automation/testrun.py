@@ -61,7 +61,11 @@ class TestRun(object):
         self.persisted = {}
 
         if self.options.workspace:
-            self.workspace = os.path.abspath(self.options.workspace)
+            path = os.path.expanduser(self.options.workspace)
+            self.workspace = os.path.abspath(path)
+
+            if not os.path.exists(self.workspace):
+                os.makedirs(self.workspace)
         else:
             self.workspace = tempfile.mkdtemp('.workspace')
 
