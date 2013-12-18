@@ -320,7 +320,8 @@ class TestRun(object):
         print '*** Creating profile: %s' % profile_path
 
         profile_args = dict(profile=profile_path,
-                            addons=self.addon_list)
+                            addons=self.addon_list,
+                            preferences=self.get_user_prefs())
         runner_args = dict(binary=self._application)
         mozmill_args = dict(app=self.options.application,
                             handlers=handlers,
@@ -465,6 +466,22 @@ class AddonsTestRun(TestRun):
             return config.get("download", platform)
         except Exception, e:
             raise errors.NotFoundException('Could not read URL settings', filename)
+
+    def get_user_prefs(self):
+        """ Read the addon.ini file and get preferenses from user_prefs section"""
+
+        filename = None
+        try:
+            filename = os.path.join(self.repository.path, self._addon_path, "addon.ini")
+            config = ConfigParser.RawConfigParser()
+            config.read(filename)
+
+            if not config.has_section("user_prefs"):
+                return {}
+
+            return dict(config.items("user_prefs"))
+        except Exception, e:
+            raise errors.NotFoundException('Cound not read URL settings', filename)
 
     def run_tests(self):
         """ Execute the normal and restart tests in sequence. """
