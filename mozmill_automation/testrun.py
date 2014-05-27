@@ -17,6 +17,7 @@ import manifestparser
 import mozfile
 import mozinfo
 import mozinstall
+import mozversion
 import mozmill
 import mozmill.logger
 
@@ -38,6 +39,7 @@ APPLICATION_BINARY_NAMES = {
     'metrofirefox' : "firefox",
     'thunderbird' : "thunderbird",
 }
+
 
 class TestRun(object):
     """Base class to execute a Mozmill test-run"""
@@ -316,7 +318,7 @@ class TestRun(object):
         try:
             self.prepare_application(self.binary)
 
-            info = application.ApplicationInformation(self._application)
+            info = mozversion.get_version(self.binary)
             print '*** Application: %s %s (%s)' % (
                 info.get('application_display_name'),
                 info.get('application_version'),
