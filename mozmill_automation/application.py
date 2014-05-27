@@ -8,6 +8,7 @@ import re
 import sys
 
 import errors
+import mozversion
 
 
 def get_bin_folder(app_folder):
@@ -54,19 +55,16 @@ def is_installer(path, application):
         return False
 
 
-class ApplicationIni(object):
-    """ Class to retrieve entries from the application.ini file. """
+class ApplicationInformation(object):
+    """ Class to retrieve entries from the application.ini file using mozversion"""
 
     def __init__(self, binary):
-        self.ini_file = os.path.join(os.path.dirname(binary),
-                                     'application.ini')
+        self.information = mozversion.get_version(binary)
 
-        self.config = ConfigParser.RawConfigParser()
-        self.config.read(self.ini_file)
 
-    def get(self, section, option):
+    def get(self, key):
         """ Retrieve the value of an entry. """
-        return self.config.get(section, option)
+        return self.information.get(key)
 
 
 class UpdateChannel(object):
