@@ -17,6 +17,7 @@ import manifestparser
 import mozfile
 import mozinfo
 import mozinstall
+import mozversion
 import mozmill
 import mozmill.logger
 
@@ -107,16 +108,7 @@ class TestRun(object):
             self._binary = build
             return
 
-        # Otherwise recursivily scan the folder and select the first found build
-        for root, dirs, files in os.walk(build):
-            # Ensure we select the build by alphabetical order
-            files.sort()
-
-            for f in files:
-                if not f in [".DS_Store"] and \
-                        application.is_installer(f, self.options.application):
-                    self._binary = os.path.abspath(os.path.join(root, f))
-                    return
+        raise errors.NotFoundException('No binary found at', build)
 
     binary = property(_get_binary, _set_binary, None)
 
@@ -317,10 +309,10 @@ class TestRun(object):
         try:
             self.prepare_application(self.binary)
 
-            ini = application.ApplicationIni(self._application)
+            version_info = mozversion.get_version(self.binary)
             print '*** Application: %s %s (%s)' % (
-                ini.get('App', 'Name'),
-                ini.get('App', 'Version'),
+                version_info.get('application_display_name'),
+                version_info.get('application_version'),
                 self._application)
 
             # Print platform details
@@ -334,7 +326,7 @@ class TestRun(object):
             self.repository.clone(path)
 
             # Update the mozmill-test repository to match the Gecko branch
-            app_repository_url = ini.get('App', 'SourceRepository')
+            app_repository_url = version_info.get('application_repository')
             branch_name = application.get_mozmill_tests_branch(app_repository_url)
 
             print "*** Updating branch of test repository to '%s'" % branch_name
