@@ -108,7 +108,16 @@ class TestRun(object):
             self._binary = build
             return
 
-        raise errors.NotFoundException('No binary found at', build)
+        # Otherwise recursivily scan the folder and select the first found build
+        for root, dirs, files in os.walk(build):
+            # Ensure we select the build by alphabetical order
+            files.sort()
+
+            for f in files:
+                if not f in [".DS_Store"] and \
+                        application.is_installer(f, self.options.application):
+                    self._binary = os.path.abspath(os.path.join(root, f))
+                    return
 
     binary = property(_get_binary, _set_binary, None)
 
