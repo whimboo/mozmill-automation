@@ -108,6 +108,9 @@ class TestRun(object):
             self._binary = build
             return
 
+        if application.is_installer(build, self.options.application) is False:
+            raise errors.NotFoundException('Binary not found', build)
+
         # Otherwise recursivily scan the folder and select the first found build
         for root, dirs, files in os.walk(build):
             # Ensure we select the build by alphabetical order
