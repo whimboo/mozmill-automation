@@ -4,7 +4,7 @@
 
 
 class InvalidBinaryException(Exception):
-    """Class for a resource not being found exception."""
+    """Class for a Invalid Binary being provided"""
 
     def __init__(self, binary):
         Exception.__init__(self, ': '.join(["Invalid binary specified", binary]))
