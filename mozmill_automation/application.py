@@ -56,24 +56,6 @@ def is_installer(path, application):
         return False
 
 
-def is_current_platform(binary):
-    """ Checks if the binary is for the current platform. """
-
-    binary_extension = os.path.splitext(binary)[1]
-
-    if binary_extension == ".exe" and mozinfo.os == "win":
-        return True
-
-    elif binary_extension == ".dmg" and mozinfo.os == "mac":
-        return True
-
-    elif binary_extension == ".bz2" and mozinfo.os == "linux":
-        return True
-
-    else:
-        return False
-
-
 class UpdateChannel(object):
     """ Class to handle the update channel. """
 

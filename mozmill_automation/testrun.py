@@ -101,7 +101,7 @@ class TestRun(object):
             raise errors.NotFoundException('Path cannot be found', build)
 
         # Check if the binary is for the correct platform
-        if application.is_current_platform(build) is False:
+        if mozinstall.is_installer(build) is False:
             raise errors.InvalidBinaryException(build)
 
         # Check if it's an installer or an already installed build
