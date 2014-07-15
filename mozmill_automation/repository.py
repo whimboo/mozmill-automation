@@ -86,3 +86,61 @@ class MercurialRepository(object):
         """Remove the repository from the local disk"""
 
         shutil.rmtree(self.path, True)
+
+class GitRepository(object):
+    """Class to work with a git repository"""
+
+    def __init__(self, url=None):
+        self.command = "git"
+        self.url = url
+
+    def _exec(self, arguments):
+        """Execute the given git command and return the output"""
+
+        command = [self.command]
+        command.extend(arguments)
+
+        return process.check_output(command).strip()
+
+    def update(self, branch=None):
+        self._exec(['pull'])
+
+    def clone(self, path=None):
+        """Clone the remote repository to the local path"""
+
+        if path:
+            # A new destination has been specified
+            self.path = os.path.abspath(path)
+
+        self._exec(['clone', self.url, self.path])
+
+    def remove(self):
+        """Remove the repository from the local disk"""
+
+        shutil.rmtree(self.path, True)
+
+class LocalRepository(object):
+    """Class to work with a local repository"""
+
+    def __init__(self, path=None):
+        """Init local repository object"""
+
+        self.path = None
+        self.src_path = os.path.abspath(path)
+
+    def update(self, branch=None):
+        pass
+
+    def clone(self, path=None):
+        """Copy from src_path to path"""
+        if not path:
+            return
+
+        self.path = os.path.abspath(path)
+        shutil.copytree(self.src_path, self.path)
+
+    def remove(self):
+        "Remove the copied repository from the local disk"""
+
+        if self.path:
+            shutil.rmtree(self.path)

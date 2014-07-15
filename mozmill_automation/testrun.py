@@ -29,9 +29,15 @@ import repository
 
 
 MOZMILL_TESTS_REPOSITORIES = {
-    'firefox' : "http://hg.mozilla.org/qa/mozmill-tests",
-    'metrofirefox' : "http://hg.mozilla.org/qa/mozmill-tests",
-    'thunderbird' : "http://hg.mozilla.org/users/bugzilla_standard8.plus.com/qa-tests/",
+    'firefox' : ("hg", "http://hg.mozilla.org/qa/mozmill-tests"),
+    'metrofirefox' : ("hg", "http://hg.mozilla.org/qa/mozmill-tests"),
+    'thunderbird' : ("hg", "http://hg.mozilla.org/users/bugzilla_standard8.plus.com/qa-tests/"),
+}
+
+REPOSITORIES_PROTOCOLS = {
+    "hg": "Mercurial",
+    "git": "Git",
+    "local": "Local"
 }
 
 APPLICATION_BINARY_NAMES = {
@@ -40,6 +46,23 @@ APPLICATION_BINARY_NAMES = {
     'thunderbird' : "thunderbird",
 }
 
+def parseSrc(option, opt_str, value, parser, *args, **kwargs):
+    value = parser.rargs[0]
+
+    del parser.rargs[0];
+    protocol = None
+    path = None
+    for p in REPOSITORIES_PROTOCOLS.keys():
+        try:
+            if value.index(p) == 0:
+                protocol = p
+                path = value[len(p) + 1:]
+                break
+        except ValueError:
+            pass
+
+    setattr(parser.values, "protocol", protocol)
+    setattr(parser.values, "path", path)
 
 class TestRun(object):
     """Base class to execute a Mozmill test-run"""
@@ -74,9 +97,17 @@ class TestRun(object):
         # default listeners
         self.listeners = [(self.graphics_event, 'mozmill.graphics')]
 
-        url = self.options.repository_url if self.options.repository_url \
-            else MOZMILL_TESTS_REPOSITORIES[self.options.application]
-        self.repository = repository.MercurialRepository(url)
+        path = None
+        protocol = None
+        if self.options.path and self.options.protocol:
+            path = self.options.path
+            protocol = self.options.protocol
+        else:
+            protocol = MOZMILL_TESTS_REPOSITORIES[self.options.application][0]
+            path = MOZMILL_TESTS_REPOSITORIES[self.options.application][1]
+
+        repositoryConstructor = REPOSITORIES_PROTOCOLS[protocol] + "Repository"
+        self.repository = getattr(__import__("repository"), repositoryConstructor)(path)
 
         self.addon_list = []
         self.downloaded_addons = []
@@ -142,10 +173,19 @@ class TestRun(object):
                           dest="report_url",
                           metavar="URL",
                           help="send results to the report server")
-        parser.add_option("--repository",
-                          dest="repository_url",
+        parser.add_option("--src",
+                          action="callback",
+                          callback=parseSrc,
                           metavar="URL",
-                          help="URL of a custom repository")
+                          help="src of tests (local:/path, hg:http://mercurial, git:http://github)")
+        parser.add_option("--protocol",
+                          dest="protocol",
+                          action="store",
+                          help="protocol for src")
+        parser.add_option("--path",
+                          dest="path",
+                          action="store",
+                          help="path for src")
         parser.add_option("--restart",
                           dest="restart",
                           default=False,
@@ -283,7 +323,8 @@ class TestRun(object):
         print '*** Creating profile: %s' % profile_path
 
         profile_args = dict(profile=profile_path,
-                            addons=self.addon_list)
+                            addons=self.addon_list,
+                            preferences=self.get_user_prefs())
         runner_args = dict(binary=self._application)
         mozmill_args = dict(app=self.options.application,
                             handlers=handlers,
@@ -428,6 +469,22 @@ class AddonsTestRun(TestRun):
             return config.get("download", platform)
         except Exception, e:
             raise errors.NotFoundException('Could not read URL settings', filename)
+
+    def get_user_prefs(self):
+        """ Read the addon.ini file and get preferenses from user_prefs section"""
+
+        filename = None
+        try:
+            filename = os.path.join(self.repository.path, self._addon_path, "addon.ini")
+            config = ConfigParser.RawConfigParser()
+            config.read(filename)
+
+            if not config.has_section("user_prefs"):
+                return {}
+
+            return dict(config.items("user_prefs"))
+        except Exception, e:
+            raise errors.NotFoundException('Cound not read URL settings', filename)
 
     def run_tests(self):
         """ Execute the normal and restart tests in sequence. """
