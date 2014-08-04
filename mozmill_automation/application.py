@@ -43,17 +43,6 @@ def is_app_folder(path):
     return os.path.exists(file)
 
 
-def is_installer(path, application):
-    """ Checks if a binary is an installer. """
-    try:
-        if (os.path.splitext(path)[1] in (".bz2", ".dmg", ".exe")):
-            return os.path.basename(path) not in (application + ".exe")
-        else:
-            return False
-    except Exception:
-        return False
-
-
 class UpdateChannel(object):
     """ Class to handle the update channel. """
 
