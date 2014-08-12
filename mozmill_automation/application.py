@@ -10,13 +10,6 @@ import sys
 import errors
 
 
-def get_bin_folder(app_folder):
-    """ Returns the folder which contains the binaries of the application. """
-    if sys.platform in ("darwin"):
-        app_folder = os.path.join(app_folder, 'Contents', 'MacOS')
-    return app_folder
-
-
 def get_mozmill_tests_branch(gecko_branch):
     """ Identify the mozmill-tests branch from the application branch. """
 
@@ -30,17 +23,6 @@ def get_mozmill_tests_branch(gecko_branch):
         branch = "default"
 
     return branch
-
-
-def is_app_folder(path):
-    """ Checks if the folder is an application folder. """
-    if sys.platform != "darwin":
-        path = os.path.dirname(path)
-
-    file = os.path.join(get_bin_folder(path),
-                        "application.ini")
-
-    return os.path.exists(file)
 
 
 class UpdateChannel(object):

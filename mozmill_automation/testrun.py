@@ -103,8 +103,7 @@ class TestRun(object):
             raise errors.NotFoundException('Path cannot be found', build)
 
         # Check if it's an installer or an already installed build
-        if mozinstall.is_installer(build) or \
-                application.is_app_folder(build):
+        if mozinstall.is_installer(build):
             self._binary = build
             return
 
