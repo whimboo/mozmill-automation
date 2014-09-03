@@ -103,10 +103,7 @@ class TestRun(object):
             raise errors.NotFoundException('Path cannot be found', build)
 
         # Check if it's an installer or an already installed build
-        # We have to custom checks via application.is_app_folder as long as
-        # mozinstall can't check for an installer (bug 795288)
-        if application.is_installer(build, self.options.application) or \
-                application.is_app_folder(build):
+        if mozinstall.is_installer(build) or os.path.isdir(build):
             self._binary = build
             return
 
@@ -117,7 +114,7 @@ class TestRun(object):
 
             for f in files:
                 if not f in [".DS_Store"] and \
-                        application.is_installer(f, self.options.application):
+                       mozinstall.is_installer(f):
                     self._binary = os.path.abspath(os.path.join(root, f))
                     return
 
@@ -215,7 +212,7 @@ class TestRun(object):
 
     def prepare_application(self, binary):
         # Prepare the binary for the test run
-        if application.is_installer(self.binary, self.options.application):
+        if mozinstall.is_installer(self.binary):
             install_path = os.path.join(self.workspace, 'binary')
 
             print "*** Installing build: %s" % self.binary
@@ -359,7 +356,7 @@ class TestRun(object):
 
         finally:
             # Remove the build when it has been installed before
-            if application.is_installer(self.binary, self.options.application):
+            if mozinstall.is_installer(self.binary):
                 print "*** Uninstalling build: %s" % self._folder
                 mozinstall.uninstall(self._folder)
 
