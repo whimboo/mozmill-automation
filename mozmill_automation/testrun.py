@@ -483,8 +483,9 @@ class AddonsTestRun(TestRun):
                     try:
                         self.mozlogger.info("Removing target add-on '%s'." % self.target_addon)
                         mozfile.remove(self.target_addon)
-                    except:
+                    except OSError, e:
                         self.mozlogger.warning("Failed to remove target add-on '%s'." % self.target_addon)
+                        self.mozlogger.exception(str(e))
 
 
 class EnduranceTestRun(TestRun):
