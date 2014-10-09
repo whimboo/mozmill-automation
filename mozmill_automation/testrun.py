@@ -17,10 +17,10 @@ import manifestparser
 import mozfile
 import mozinfo
 import mozinstall
-import mozversion
+import mozlog
 import mozmill
 import mozmill.logger
-import mozlog
+import mozversion
 
 import application
 import errors
@@ -92,7 +92,6 @@ class TestRun(object):
 
         self.mozlogger = mozlog.getLogger('mozmill_automation')
         self.mozlogger.setLevel(getattr(mozlog, mozlog_level.upper()))
-
 
     def _get_binary(self):
         """ Returns the binary to test. """
@@ -797,3 +796,4 @@ def remote_cli():
 
 def update_cli():
     exec_testrun(UpdateTestRun)
+
