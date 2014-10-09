@@ -17,9 +17,9 @@ import manifestparser
 import mozfile
 import mozinfo
 import mozinstall
-import mozlog
 import mozmill
 import mozmill.logger
+import mozlog
 import mozversion
 
 import application
@@ -92,6 +92,7 @@ class TestRun(object):
 
         self.mozlogger = mozlog.getLogger('mozmill_automation')
         self.mozlogger.setLevel(getattr(mozlog, mozlog_level.upper()))
+
 
     def _get_binary(self):
         """ Returns the binary to test. """
@@ -189,7 +190,7 @@ class TestRun(object):
 
             return target_path
         except Exception, e:
-            self.mozlogger.error(str(e))
+            self.mozlogger.exception(str(e))
 
     def get_tests_folder(self, *args):
         """ Getting the correct tests path for the testrun. """
@@ -254,7 +255,7 @@ class TestRun(object):
                 self.mozlogger.info("Removing downloaded add-on '%s'." % path)
                 mozfile.remove(path)
             except:
-                self.mozlogger.error("Failed to remove downloaded add-on '%s'." % path)
+                self.mozlogger.exception("Failed to remove downloaded add-on '%s'." % path)
 
     @property
     def report_type(self):
@@ -326,14 +327,12 @@ class TestRun(object):
             self.prepare_application(self.binary)
             version_info = mozversion.get_version(self._application)
 
-            # Log this in DEBUG level?
             self.mozlogger.info('Application: %s %s (%s)' % (
                 version_info.get('application_display_name'),
                 version_info.get('application_version'),
                 self._application))
 
             # Print platform details.
-            # Log this in DEBUG level?
             self.mozlogger.info('Platform: %s %s %sbit' % (
                 str(mozinfo.os).capitalize(),
                 mozinfo.version,
@@ -485,7 +484,7 @@ class AddonsTestRun(TestRun):
                         self.mozlogger.info("Removing target add-on '%s'." % self.target_addon)
                         mozfile.remove(self.target_addon)
                     except:
-                        self.mozlogger.info("Failed to remove target add-on '%s'." % self.target_addon)
+                        self.mozlogger.warning("Failed to remove target add-on '%s'." % self.target_addon)
 
 
 class EnduranceTestRun(TestRun):
@@ -744,7 +743,7 @@ class UpdateTestRun(TestRun):
                 if 'stagingPath' in update_data:
                     mozfile.remove(update_data['stagingPath'])
             except OSError, e:
-                self.mozlogger.error("Failed to remove update staging folder: %s" % str(e))
+                self.mozlogger.warning("Failed to remove update staging folder: %s" % str(e))
 
             # Reset channel-prefs.js file if modified
             try:
@@ -753,7 +752,7 @@ class UpdateTestRun(TestRun):
                     with open(path, 'w') as f:
                         f.write(update_data['default_update_channel']['content'])
             except IOError as e:
-                self.mozlogger.error("Failed to reset the default update channel: %s" % str(e))
+                self.mozlogger.warning("Failed to reset the default update channel: %s" % str(e))
 
             # Reset update-settings.ini file if modified
             try:
@@ -762,7 +761,7 @@ class UpdateTestRun(TestRun):
                     with open(path, 'w') as f:
                         f.write(update_data['default_mar_channels']['content'])
             except IOError as e:
-                self.mozlogger.error("Failed to reset the default mar channels: %s" % str(e))
+                self.mozlogger.warning("Failed to reset the default mar channels: %s" % str(e))
 
 
 def exec_testrun(cls):
