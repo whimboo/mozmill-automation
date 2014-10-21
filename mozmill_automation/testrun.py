@@ -189,8 +189,8 @@ class TestRun(object):
             urllib.urlretrieve(url, target_path)
 
             return target_path
-        except Exception, e:
-            self.mozlogger.exception(str(e))
+        except Exception:
+            self.mozlogger.exception("failed to download addon from %s" % url)
 
     def get_tests_folder(self, *args):
         """ Getting the correct tests path for the testrun. """
@@ -454,8 +454,8 @@ class AddonsTestRun(TestRun):
 
                 try:
                     url = self.get_download_url()
-                except errors.NotFoundException, e:
-                    self.mozlogger.error(str(e))
+                except errors.NotFoundException:
+                    self.mozlogger.exception("Failed to get addon.")
                     continue
 
                 # Check if the download URL is trusted and we can proceed
@@ -473,8 +473,8 @@ class AddonsTestRun(TestRun):
                 self.addon_list.append(self.target_addon)
                 TestRun.run_tests(self)
 
-            except Exception, e:
-                self.mozlogger.error(str(e))
+            except Exception:
+                self.mozlogger.exception()
                 self.exception_type, self.exception, self.tb = sys.exc_info()
 
             finally:
@@ -483,10 +483,8 @@ class AddonsTestRun(TestRun):
                     try:
                         self.mozlogger.info("Removing target add-on '%s'." % self.target_addon)
                         mozfile.remove(self.target_addon)
-                    except OSError, e:
-                        self.mozlogger.warning("Failed to remove target add-on '%s'." % self.target_addon)
-                        self.mozlogger.exception(str(e))
-
+                    except OSError:
+                        self.mozlogger.exception("Failed to remove target add-on '%s'." % self.target_addon)
 
 class EnduranceTestRun(TestRun):
     """Class to execute an endurance test-run"""
@@ -696,10 +694,10 @@ class UpdateTestRun(TestRun):
             try:
                 mozfile.remove(self._folder)
                 break
-            except Exception, e:
-                self.mozlogger.error(str(e))
+            except Exception:
+                self.mozlogger.exception("Failed to remove binary at '%s" % self._folder)
                 if time.time() >= timeout:
-                    self.mozlogger.error("Cannot remove folder '%s'" % self._folder)
+                    self.mozlogger.exception("Cannot remove folder '%s'" % self._folder)
                     raise
                 else:
                     time.sleep(1)
@@ -735,8 +733,8 @@ class UpdateTestRun(TestRun):
             self.manifest_path = os.path.join(tests_path, type, "manifest.ini")
 
             TestRun.run_tests(self)
-        except Exception, e:
-            self.mozlogger.error("Execution of test-run aborted: %s" % str(e))
+        except Exception:
+            self.mozlogger.exception("Execution of test-run aborted")
         finally:
             update_data = self._mozmill.persisted[self.type]
 
