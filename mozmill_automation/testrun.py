@@ -695,9 +695,9 @@ class UpdateTestRun(TestRun):
                 mozfile.remove(self._folder)
                 break
             except Exception:
-                self.mozlogger.exception("Failed to remove binary at '%s" % self._folder)
+                self.mozlogger.exception("Failed to remove binary at '%s'" % self._folder)
                 if time.time() >= timeout:
-                    self.mozlogger.exception("Cannot remove folder '%s'" % self._folder)
+                    self.mozlogger.error("Timeout while removing '%s'")
                     raise
                 else:
                     time.sleep(1)
