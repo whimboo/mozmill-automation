@@ -90,7 +90,7 @@ class TestRun(object):
         self.exception = None
         self.tb = None
 
-        self.mozlogger = mozlog.getLogger('mozmill_automation')
+        self.mozlogger = mozlog.getLogger('')
         self.mozlogger.setLevel(getattr(mozlog, mozlog_level.upper()))
 
 
