@@ -473,7 +473,7 @@ class AddonsTestRun(TestRun):
                 TestRun.run_tests(self)
 
             except Exception:
-                self.mozlogger.exception()
+                self.mozlogger.exception('Failed to download target add-on: %s' % addon)
                 self.exception_type, self.exception, self.tb = sys.exc_info()
 
             finally:
