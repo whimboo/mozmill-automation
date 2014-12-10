@@ -19,7 +19,7 @@ deps = ['mercurial == 2.6.2',
         'mozinfo >= 0.7',
         'mozfile >= 1.0',
         'mozinstall >= 1.7',
-        'mozmill == 2.1-dev',
+        'mozmill == 2.0.9',
         'mozversion >= 0.7'
         ]
 
