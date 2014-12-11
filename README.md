@@ -16,6 +16,11 @@ The scripts can be installed by running the following command:
 
 This will also install mercurial, mozinstall and mozmill if required.
 
+## How to run entry point scripts?
+The path to the Firefox binary to be tested should be supplied as an argument to the entry point script. For example, to run the `testrun_addons` script:
+
+    testrun_addons "C:\Program Files (x86)\Firefox Developer Edition\firefox.exe"
+
 ## Addons
 The `testrun_addons` script executes available Mozmill tests for add-ons,
 which should usually be hosted at http://addons.mozilla.org.
