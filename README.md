@@ -17,13 +17,16 @@ The scripts can be installed by running the following command:
 This will also install mercurial, mozinstall and mozmill if required.
 
 ## How to run entry point scripts?
-The path to the Firefox binary to be tested should be supplied as an argument to the entry point script. For example, to run the `testrun_addons` script:
+The path to the Firefox binary to be tested should be supplied as an argument 
+to the entry point script. For example, to run the `testrun_functional` script:
 
-    testrun_addons "C:\Program Files (x86)\Firefox Developer Edition\firefox.exe"
+    testrun_functional "C:\Program Files (x86)\Firefox Developer Edition\firefox.exe"
 
 ## Addons
 The `testrun_addons` script executes available Mozmill tests for add-ons,
-which should usually be hosted at http://addons.mozilla.org.
+which should usually be hosted at http://addons.mozilla.org. At this time 
+there's only 1 addon that has tests, and that is *Selenium IDE*. To be able 
+to run this, you also need to pass in `--with-untrusted` as an argument.
 
 The `testrun_compat_addons` script is a special testrun to execute add-on
 compatibility tests for Firefox, which ensures that major add-ons are still
