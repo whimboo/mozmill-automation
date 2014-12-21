@@ -22,11 +22,14 @@ to the entry point script. For example, to run the `testrun_functional` script:
 
     testrun_functional "C:\Program Files (x86)\Firefox Developer Edition\firefox.exe"
 
+There is a `--help` option available for further information of any of the testrun scripts:
+
+    `testrun_functional --help`
+
 ## Addons
 The `testrun_addons` script executes available Mozmill tests for add-ons,
-which should usually be hosted at http://addons.mozilla.org. At this time 
-there's only 1 addon that has tests, and that is *Selenium IDE*. To be able 
-to run this, you also need to pass in `--with-untrusted` as an argument.
+which should usually be hosted at http://addons.mozilla.org. For add-ons not
+hosted on AMO, you also need to pass in `--with-untrusted` as an argument.
 
 The `testrun_compat_addons` script is a special testrun to execute add-on
 compatibility tests for Firefox, which ensures that major add-ons are still
