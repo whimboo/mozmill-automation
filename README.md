@@ -24,7 +24,7 @@ to the entry point script. For example, to run the `testrun_functional` script:
 
 There is a `--help` option available for further information of any of the testrun scripts:
 
-    `testrun_functional --help`
+    testrun_functional --help
 
 ## Addons
 The `testrun_addons` script executes available Mozmill tests for add-ons,
