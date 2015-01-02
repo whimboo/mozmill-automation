@@ -17,9 +17,9 @@ import manifestparser
 import mozfile
 import mozinfo
 import mozinstall
+import mozlog
 import mozmill
 import mozmill.logger
-import mozlog
 import mozversion
 
 import application
@@ -454,7 +454,7 @@ class AddonsTestRun(TestRun):
                 try:
                     url = self.get_download_url()
                 except errors.NotFoundException:
-                    self.mozlogger.exception('Failed to get addon.')
+                    self.mozlogger.exception('Failed to get addon: %s' % addon)
                     continue
 
                 # Check if the download URL is trusted and we can proceed
