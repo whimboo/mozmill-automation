@@ -129,7 +129,7 @@ class TestRun(object):
     binary = property(_get_binary, _set_binary, None)
 
     def add_options(self, parser):
-        """add options to the parser"""
+        """Add options to the parser"""
         parser.add_option("-a", "--addons",
                           dest="addons",
                           action="append",
@@ -438,7 +438,7 @@ class AddonsTestRun(TestRun):
             raise errors.NotFoundException('Could not read URL settings', filename)
 
     def run_tests(self):
-        """ Execute the normal and restart tests in sequence. """
+        """ Execute the remote tests and restart tests in sequence. """
 
         # If no target add-ons have been specified get all available add-on tests
         if not self.options.target_addons:
