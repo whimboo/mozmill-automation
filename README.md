@@ -33,7 +33,8 @@ hosted on AMO, you also need to pass in `--with-untrusted` as an argument.
 
 The `testrun_compat_addons` script is a special testrun to execute add-on
 compatibility tests for Firefox, which ensures that major add-ons are still
-working as expected for a new major release of Firefox.
+working as expected for a new major release of Firefox. An example config
+file is provided in the repo. One or more builds can be defined in the file.
 
 ## Endurance
 The `testrun_endurance` script executes the endurance tests for Firefox,
