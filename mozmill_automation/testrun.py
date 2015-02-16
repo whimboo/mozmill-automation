@@ -275,6 +275,10 @@ class TestRun(object):
                                                file_level=self.debug and 'DEBUG' or 'INFO',
                                                debug=self.debug)
         handlers = [logger]
+        
+        if self.options.report_url[-1] != '/':
+            self.options.report_url += '/'
+        
         if self.options.report_url:
             self.report = reports.DashboardReport(self.options.report_url, self)
             handlers.append(self.report)
