@@ -87,7 +87,7 @@ info = {'os': unknown,
 
 # get os information and related data
 if system in ["Microsoft", "Windows"]:
-    info['os'] = 'win'    
+    info['os'] = 'win'
     # There is a Python bug on Windows to determine platform values
     # http://bugs.python.org/issue7860
     if "PROCESSOR_ARCHITEW6432" in os.environ:
